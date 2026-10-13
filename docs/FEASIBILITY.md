@@ -113,8 +113,9 @@ Rejected alternatives:
 
 | Path | What |
 | --- | --- |
+| `artifacts/PPSA99021.zip` (CI artifact `PPSA99021`) | Downloadable signed RADV title |
+| `dist/PPSA99021/` | Unpacked GPU title after `make vulkan` |
 | `dist/aamd-probe.elf` (CI artifact `aamd-probe.elf`) | CPU saxpy payload |
-| `dist/PPSA99021/` | GPU title after `make vulkan` |
 | `/data/aamd/probe.log` | Log on the console (FTP) |
 | `/data/homebrew/PPSA99021/probe.log` | Copy when the title's `/app0` is writable |
 
@@ -139,8 +140,10 @@ Expect `RESULT: PASS (CPU saxpy)`, serial and N-thread timings, and
 
 ## Coordinator: Vulkan title (the actual GPU probe)
 
-Build once on a Linux host with clang 18, meson, ninja, glslang,
-`PS5_Mesa`, `PS5_Vulkan`, `PS5_PayloadSDK`:
+A signed title is already on this branch: unzip
+[`artifacts/PPSA99021.zip`](../artifacts/PPSA99021.zip). To rebuild on a
+Linux host with clang 18, meson, ninja, glslang, `PS5_Mesa`, `PS5_Vulkan`,
+`PS5_PayloadSDK`:
 
 ```sh
 git clone https://github.com/mihawk-99/PS5_Vulkan.git
@@ -153,6 +156,10 @@ tools/build-radv.sh release
 export PS5_VULKAN=/path/to/PS5_Vulkan
 make vulkan
 ```
+
+`probe/vulkan/build.sh` passes `--no-dynamic-linker` so Mesa's weak
+entry-point names stay out of `.dynsym` (the title converter otherwise
+demands an SDK stub for each).
 
 Install over FTP (binary mode):
 

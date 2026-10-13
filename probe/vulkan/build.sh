@@ -63,7 +63,15 @@ stub libSceAgcDriver vendor/ps5/sdk/stubs/agc_driver_canary_link_stub.c
 # shellcheck source=/dev/null
 source "$vk/tools/radv-link.sh"
 radv_link_recipe "$vk" "$sdk_root" "$archive" || exit 2
-"$sdk_root/bin/prospero-lld" "${radv_linker_script[@]}" --eh-frame-hdr "${radv_link_flags[@]}" \
+# Mesa names every Vulkan entry through a weak reference that must read as
+# NULL. The title converter treats every .dynsym UND as an SDK import, so
+# those weaks have to stay out of the dynamic table. --no-dynamic-linker is
+# the flag that actually does that on LLD 18 (PS5_Vulkan docs/M5_PHASE_B.md);
+# -z nodynamic-undefined-weak is a no-op there but matches the working
+# build.sh / check-*.sh recipes and is required on LLD 22.
+"$sdk_root/bin/prospero-lld" "${radv_linker_script[@]}" --eh-frame-hdr \
+    --no-dynamic-linker -z nodynamic-undefined-weak \
+    "${radv_link_flags[@]}" \
     --version-script "$native/app-symbols.map" --exclude-libs=ALL \
     -e _start -o "$work/llvm-pie.elf" \
     "$work/obj/app_crt.o" "$work/obj/app_cpp_runtime.o" \

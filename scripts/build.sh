@@ -19,5 +19,10 @@ echo "CPU ELF: dist/aamd-probe.elf"
 
 if [[ -n ${PS5_VULKAN:-} ]]; then
     make vulkan
+    mkdir -p artifacts
+    rm -f artifacts/PPSA99021.zip
+    (cd dist && zip -9 -r "$root/artifacts/PPSA99021.zip" PPSA99021)
+    (cd artifacts && sha256sum PPSA99021.zip > PPSA99021.zip.sha256)
     echo "RADV title: dist/PPSA99021/"
+    echo "RADV zip:   artifacts/PPSA99021.zip"
 fi

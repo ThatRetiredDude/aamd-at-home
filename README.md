@@ -13,11 +13,10 @@ See [docs/FEASIBILITY.md](docs/FEASIBILITY.md).
 
 | File | How to run |
 | --- | --- |
-| `dist/aamd-probe.elf` | `nc -q0 <ps5> 9021 < dist/aamd-probe.elf` then FTP `/data/aamd/probe.log` |
-| `dist/PPSA99021/` | Copy to `/data/homebrew/PPSA99021/` and launch (Vulkan saxpy on RADV) |
+| [`artifacts/PPSA99021.zip`](artifacts/PPSA99021.zip) | Unzip and FTP the `PPSA99021/` folder to `/data/homebrew/PPSA99021/`, then launch **AAMD GPU Probe** from the home screen. Do not `nc` this to 9021. |
+| `dist/aamd-probe.elf` | `nc -q0 <ps5> 9021 < dist/aamd-probe.elf` then FTP `/data/aamd/probe.log` (CPU-only; skip unless checking GPU results) |
 
-CI uploads `aamd-probe.elf`. The RADV title is built with `make vulkan`
-when `PS5_VULKAN` points at a built [PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) tree.
+The signed RADV title is in the zip on this branch (`eboot.bin` 24,272,383 bytes, FSELF integrity valid). CI also uploads it as the `PPSA99021` Actions artifact. Rebuild with `make vulkan` when `PS5_VULKAN` points at a built [PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) tree.
 
 ## Build
 
