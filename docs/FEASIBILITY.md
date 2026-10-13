@@ -24,6 +24,28 @@ need the native CRT, FSELF-signed `eboot.bin`, `libc.prx`, and AGC
 imports. The CPU saxpy ELF in this repo exists so the coordinator
 pipeline is proven even before the RADV title is built.
 
+## Console result (PPSA99021)
+
+On the coordinator's PS5 (fw 13.60, OnionHEN + kstuff), after
+`param.json` matched Showcase/Porpoise (`attribute3` 524352 plus `amm` /
+`kernel` page tables) and `PPSA99021` was in OnionHEN `exact_title_ids`:
+
+```text
+RESULT: PASS (Vulkan saxpy on RADV)
+device: PlayStation 5 GPU (RADV NAVI21)  Mesa 26.2.0
+gpu saxpy: 0.0003 s  (313 GiB/s effective)
+mismatches=0
+speedup: 6.57x vs 16 CPU threads
+```
+
+That is a real compute dispatch on RADV, CPU-checked. The first zip then
+showed "Something went wrong with this game or app" because returning
+from `main` / `exit()` crashes this launch context (PS5_Vulkan
+`demo_renderer.cpp`). The title now tears Vulkan down and leaves with
+`sceSystemServiceLoadExec("exit")`, and parks in `sceKernelUsleep` if
+LoadExec returns, the same way Porpoise/RetroArch and the PS5_Vulkan
+samples avoid CRT exit.
+
 ## Console evidence (the three eboots)
 
 Files from `/data/homebrew/<TITLEID>/eboot.bin`, strings-analyzed here:
@@ -181,8 +203,11 @@ is a `boot:` log written before any Vulkan init. Read, in order:
 /data/homebrew/PPSA99021/probe.log
 ```
 
-Expect `device: ... RADV ...`, `RESULT: PASS (Vulkan saxpy on RADV)`,
-CPU and GPU timings, `mismatches=0`.
+Expect `device: PlayStation 5 GPU (RADV NAVI21)`,
+`RESULT: PASS (Vulkan saxpy on RADV)`, GPU ~0.0003 s / ~313 GiB/s,
+`mismatches=0`, then `exit: vulkan destroyed` and
+`exit: sceSystemServiceLoadExec("exit")`. The home screen should come
+back without "Something went wrong with this game or app".
 
 ## Coordinator: GL fallback
 

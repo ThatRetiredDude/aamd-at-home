@@ -24,6 +24,15 @@
 
 #include "saxpy_spv.h"
 
+#if defined(__PROSPERO__)
+/* Porpoise / RetroArch leave a title with LoadExec("exit"). Returning from
+ * main or calling exit() crashes this launch context (PS5_Vulkan
+ * demo_renderer.cpp: "Returning from main or calling exit crashes this
+ * launch context"). */
+int sceSystemServiceLoadExec(const char *path, char *const argv[]);
+int sceKernelUsleep(unsigned microseconds);
+#endif
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_icdGetInstanceProcAddr(VkInstance instance,
                                                                    const char *name);
 
@@ -310,6 +319,44 @@ static int context_create(struct context *c) {
     return vkAllocateCommandBuffers(c->device, &cmd_info, &c->cmd) == VK_SUCCESS;
 }
 
+static void context_destroy(struct context *c) {
+    if (!c)
+        return;
+    if (c->device && vkDeviceWaitIdle)
+        vkDeviceWaitIdle(c->device);
+    if (c->device) {
+        if (vkDestroyFence)
+            vkDestroyFence(c->device, c->fence, NULL);
+        if (vkDestroyCommandPool)
+            vkDestroyCommandPool(c->device, c->pool, NULL);
+        if (vkDestroyDevice)
+            vkDestroyDevice(c->device, NULL);
+        c->device = VK_NULL_HANDLE;
+        c->queue = VK_NULL_HANDLE;
+        c->cmd = VK_NULL_HANDLE;
+        c->pool = VK_NULL_HANDLE;
+        c->fence = VK_NULL_HANDLE;
+    }
+    if (c->instance && vkDestroyInstance) {
+        vkDestroyInstance(c->instance, NULL);
+        c->instance = VK_NULL_HANDLE;
+    }
+}
+
+static void aamd_title_leave(void) {
+#if defined(__PROSPERO__)
+    aamd_log("exit: sceSystemServiceLoadExec(\"exit\")");
+    aamd_log_close();
+    (void)sceSystemServiceLoadExec("exit", NULL);
+    /* LoadExec did not replace the process; stay alive so CRT exit() does
+     * not produce "Something went wrong with this game or app". */
+    for (;;)
+        sceKernelUsleep(1000000);
+#else
+    aamd_log_close();
+#endif
+}
+
 static int gpu_saxpy(struct context *c, uint32_t n, float a, const float *x_in, float *y_inout,
                      double *seconds) {
     struct buffer bx = {0}, by = {0};
@@ -494,6 +541,7 @@ int main(void) {
     const uint32_t n = AAMD_SAXPY_N;
     const unsigned threads = aamd_nthreads();
     int status = 1;
+    struct context c = {0};
 
     aamd_log("AAMD@home GPU compute probe (Vulkan / RADV)");
     aamd_log("title: PPSA99021  n=%u a=%.1f cpu_threads=%u", n, AAMD_SAXPY_A, threads);
@@ -515,11 +563,10 @@ int main(void) {
     double t_cpu = aamd_now_s() - t0;
     aamd_log("cpu %u-thread: %.4f s", threads, t_cpu);
 
-    struct context c = {0};
     if (!context_create(&c)) {
         aamd_log("RESULT: FAIL (Vulkan device)");
         aamd_notify("AAMD probe FAIL (no Vulkan)");
-        goto done;
+        goto teardown;
     }
 
     double t_gpu = 0.0;
@@ -547,20 +594,14 @@ int main(void) {
     }
 
 teardown:
-    if (c.device) {
-        vkDeviceWaitIdle(c.device);
-        vkDestroyFence(c.device, c.fence, NULL);
-        vkDestroyCommandPool(c.device, c.pool, NULL);
-        vkDestroyDevice(c.device, NULL);
-    }
-    if (c.instance)
-        vkDestroyInstance(c.instance, NULL);
+    context_destroy(&c);
+    aamd_log("exit: vulkan destroyed");
 
 done:
     free(x);
     free(y_cpu);
     free(y_gpu);
     aamd_log("log: %s", aamd_log_path());
-    aamd_log_close();
+    aamd_title_leave();
     return status;
 }
