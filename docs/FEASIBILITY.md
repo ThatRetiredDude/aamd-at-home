@@ -108,6 +108,12 @@ Rejected alternatives:
   This repo's own sources stay MIT.
 - **Title ID `PPSA99021`.** Local development id, not a Sony assignment.
   Change it if it collides on the console.
+- **`param.json` GPU VA.** Working GPU titles (Showcase PPSA99005, Porpoise
+  PPSA99764) set `attribute3` to 524352 (`0x80040`) and declare `amm` /
+  `kernel` page-table sizes. A title with `attribute3: 0` and without those
+  blocks dies at launch with "Something went wrong" and never reaches
+  `main`. Keep `probe/vulkan/param.json` in that shape. Add `PPSA99021`
+  to OnionHEN `exact_title_ids` on the console.
 
 ## Artifacts
 
@@ -116,8 +122,8 @@ Rejected alternatives:
 | `artifacts/PPSA99021.zip` (CI artifact `PPSA99021`) | Downloadable signed RADV title |
 | `dist/PPSA99021/` | Unpacked GPU title after `make vulkan` |
 | `dist/aamd-probe.elf` (CI artifact `aamd-probe.elf`) | CPU saxpy payload |
-| `/data/aamd/probe.log` | Log on the console (FTP) |
-| `/data/homebrew/PPSA99021/probe.log` | Copy when the title's `/app0` is writable |
+| `/data/aamd/probe.log` | Log on the console (FTP), if that directory is writable |
+| `/data/homebrew/PPSA99021/probe.log` | Fallback log if `/data/aamd` is not writable |
 
 ## Coordinator: CPU ELF (always)
 
@@ -167,10 +173,12 @@ Install over FTP (binary mode):
 copy dist/PPSA99021/  ->  /data/homebrew/PPSA99021/
 ```
 
-Launch **AAMD GPU Probe** from the home screen. Read:
+Launch **AAMD GPU Probe** from the home screen. The first line of `main`
+is a `boot:` log written before any Vulkan init. Read, in order:
 
 ```text
 /data/aamd/probe.log
+/data/homebrew/PPSA99021/probe.log
 ```
 
 Expect `device: ... RADV ...`, `RESULT: PASS (Vulkan saxpy on RADV)`,

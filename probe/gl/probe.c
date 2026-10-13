@@ -180,7 +180,7 @@ done:
     free(x);
     free(y_cpu);
     free(y_gpu);
-    aamd_log("log: %s", AAMD_LOG_PATH);
+    aamd_log("log: %s", aamd_log_path());
     aamd_log_close();
     (void)ctx;
     return status;

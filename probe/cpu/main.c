@@ -67,7 +67,7 @@ done:
     free(x);
     free(y);
     free(y_ref);
-    aamd_log("log: %s", AAMD_LOG_PATH);
+    aamd_log("log: %s", aamd_log_path());
     aamd_log_close();
     return status;
 }

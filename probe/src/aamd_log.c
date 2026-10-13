@@ -18,6 +18,7 @@ int sceKernelDebugOutText(int channel, const char *text);
 #endif
 
 static FILE *g_log;
+static const char *g_log_path = "(none)";
 
 static void klog_line(const char *line) {
 #if defined(__PROSPERO__)
@@ -29,17 +30,33 @@ static void klog_line(const char *line) {
 #endif
 }
 
+static int try_open(const char *path) {
+    FILE *fp = fopen(path, "w");
+    if (!fp)
+        return 0;
+    setvbuf(fp, NULL, _IOLBF, 0);
+    g_log = fp;
+    g_log_path = path;
+    return 1;
+}
+
 int aamd_log_open(void) {
     mkdir(AAMD_LOG_DIR, 0777);
+    if (try_open(AAMD_LOG_PATH))
+        return 0;
+    /* Title folder is writable over FTP; /data/aamd often is not for a
+     * native title. Prefer that over /app0, which may be a read-only mount. */
+    if (try_open(AAMD_HOMEBREW_LOG_PATH))
+        return 0;
+    if (try_open(AAMD_TITLE_LOG_PATH))
+        return 0;
+    if (try_open("probe.log"))
+        return 0;
+    return -1;
+}
 
-    g_log = fopen(AAMD_LOG_PATH, "w");
-    if (!g_log)
-        g_log = fopen(AAMD_TITLE_LOG_PATH, "w");
-    if (!g_log)
-        g_log = fopen("probe.log", "w");
-    if (g_log)
-        setvbuf(g_log, NULL, _IOLBF, 0);
-    return g_log ? 0 : -1;
+const char *aamd_log_path(void) {
+    return g_log_path;
 }
 
 void aamd_log_close(void) {

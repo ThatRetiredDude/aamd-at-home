@@ -6,7 +6,16 @@
   "applicationDrmType": "free",
   "attribute": 0,
   "attribute2": 0,
-  "attribute3": 0,
+  "attribute3": 524352,
+  "amm": {
+    "multimapVaRangeInGib": 512,
+    "pagetableMemorySizeInMib": 256,
+    "vaRangeInGib": 512
+  },
+  "kernel": {
+    "cpuPageTableSize": 268435456,
+    "gpuPageTableSize": 268435456
+  },
   "conceptId": "99021",
   "contentBadgeType": 1,
   "contentId": "UP9000-PPSA99021_00-AAMDHOMEGPU00001",

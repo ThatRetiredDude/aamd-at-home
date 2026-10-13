@@ -488,11 +488,13 @@ cleanup:
 }
 
 int main(void) {
+    aamd_log_open();
+    aamd_log("boot: PPSA99021 entered main before Vulkan init (log=%s)", aamd_log_path());
+
     const uint32_t n = AAMD_SAXPY_N;
     const unsigned threads = aamd_nthreads();
     int status = 1;
 
-    aamd_log_open();
     aamd_log("AAMD@home GPU compute probe (Vulkan / RADV)");
     aamd_log("title: PPSA99021  n=%u a=%.1f cpu_threads=%u", n, AAMD_SAXPY_A, threads);
     aamd_notify("AAMD probe: RADV saxpy");
@@ -558,7 +560,7 @@ done:
     free(x);
     free(y_cpu);
     free(y_gpu);
-    aamd_log("log: %s (also %s on a title)", AAMD_LOG_PATH, AAMD_TITLE_LOG_PATH);
+    aamd_log("log: %s", aamd_log_path());
     aamd_log_close();
     return status;
 }

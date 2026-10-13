@@ -16,9 +16,11 @@ extern "C" {
 
 #define AAMD_LOG_DIR "/data/aamd"
 #define AAMD_LOG_PATH "/data/aamd/probe.log"
+#define AAMD_HOMEBREW_LOG_PATH "/data/homebrew/PPSA99021/probe.log"
 #define AAMD_TITLE_LOG_PATH "/app0/probe.log"
 
 int aamd_log_open(void);
+const char *aamd_log_path(void);
 void aamd_log_close(void);
 void aamd_log(const char *fmt, ...)
 #if defined(__GNUC__)
