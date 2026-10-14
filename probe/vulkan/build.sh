@@ -94,5 +94,15 @@ for asset in icon0.png pic0.dds pic1.dds snd0.at9; do
 done
 [[ -f $vk/runtime/libc.prx ]] || bash "$vk/tools/rebuild-libc.sh"
 cp "$vk/runtime/libc.prx" "$app/sce_module/libc.prx"
+# GPL-3.0: ship the license and record the exact source this title was built from (NOTICE.md).
+cp "$root/LICENSES/GPL-3.0-or-later.txt" "$app/LICENSE-GPL-3.0-or-later.txt"
+cp "$root/NOTICE.md" "$app/NOTICE.md"
+pin() { git -C "$1" rev-parse HEAD 2>/dev/null || echo unknown; }
+{
+    echo "aamd-at-home $(pin "$root")"
+    echo "PS5_Vulkan   $(pin "$vk")"
+    echo "PS5_Mesa     $(pin "$mesa")"
+    echo "PS5_PayloadSDK $(pin "$vk/../PS5_PayloadSDK")"
+} > "$app/BUILD_SOURCES.txt"
 "$tool" self --inspect --file "$app/eboot.bin" >/dev/null
 printf 'AAMD RADV title: %s (%s bytes)\n' "$app" "$(stat -c %s "$app/eboot.bin")"

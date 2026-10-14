@@ -50,4 +50,6 @@ jobs:
           path: |
             artifacts/PPSA99021.zip
             artifacts/PPSA99021.zip.sha256
+            NOTICE.md
+            LICENSES/GPL-3.0-or-later.txt
           if-no-files-found: error
