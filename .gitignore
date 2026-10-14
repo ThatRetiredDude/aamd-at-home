@@ -1,0 +1,7 @@
+build/
+dist/
+probe/cpu/aamd-probe.elf
+probe/gl/gl-probe.elf
+probe.log
+*.o
+.deps/

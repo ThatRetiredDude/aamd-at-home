@@ -1,0 +1,52 @@
+name: Probe
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  host-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: CPU saxpy (host)
+        run: make host-test
+
+  cpu-elf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang/LLVM 18
+        run: sudo apt-get update && sudo apt-get install -y clang-18 lld-18 llvm-18
+      - name: Install PS5 payload SDK
+        run: |
+          wget -q https://github.com/ps5-payload-dev/pacbrew-repo/releases/latest/download/ps5-payload-dev.tar.gz
+          sudo tar xf ps5-payload-dev.tar.gz -C /
+          echo "PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk" >> "$GITHUB_ENV"
+      - name: Build CPU ELF
+        run: make cpu && mkdir -p dist && cp probe/cpu/aamd-probe.elf dist/aamd-probe.elf
+      - name: File type
+        run: file dist/aamd-probe.elf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aamd-probe.elf
+          path: dist/aamd-probe.elf
+          if-no-files-found: error
+
+  radv-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm signed title zip
+        run: |
+          test -f artifacts/PPSA99021.zip
+          unzip -t artifacts/PPSA99021.zip
+          sha256sum -c artifacts/PPSA99021.zip.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PPSA99021
+          path: |
+            artifacts/PPSA99021.zip
+            artifacts/PPSA99021.zip.sha256
+          if-no-files-found: error
