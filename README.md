@@ -13,7 +13,7 @@ See [docs/FEASIBILITY.md](docs/FEASIBILITY.md).
 
 | File | How to run |
 | --- | --- |
-| [`artifacts/PPSA99021.zip`](artifacts/PPSA99021.zip) | Unzip and FTP the `PPSA99021/` folder to `/data/homebrew/PPSA99021/`, then launch **AAMD GPU Probe** from the home screen. Do not `nc` this to 9021. |
+| [`artifacts/PPSA99021.zip`](artifacts/PPSA99021.zip) (GPL-3.0-or-later, see NOTICE.md) | Unzip and FTP the `PPSA99021/` folder to `/data/homebrew/PPSA99021/`, then launch **AAMD GPU Probe** from the home screen. Do not `nc` this to 9021. |
 | `dist/aamd-probe.elf` | `nc -q0 <ps5> 9021 < dist/aamd-probe.elf` then FTP `/data/aamd/probe.log` (CPU-only; skip unless checking GPU results) |
 
 The signed RADV title is in the zip on this branch. `param.json` matches
@@ -42,3 +42,11 @@ make cpu
 CI uploads the ELF as the `aamd-probe.elf` Actions artifact.
 
 Vulkan title: follow the coordinator section in `docs/FEASIBILITY.md`.
+
+## License
+
+The source code here is MIT (`LICENSE`). The prebuilt title
+`artifacts/PPSA99021.zip` links GPL-3.0-or-later code (PS5_Vulkan,
+PS5_PayloadSDK), so that binary is distributed under GPL-3.0-or-later
+(`LICENSES/GPL-3.0-or-later.txt`). `NOTICE.md` lists every third-party
+part and the exact source commits it was built from.
