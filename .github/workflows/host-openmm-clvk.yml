@@ -46,7 +46,7 @@ jobs:
           max-size: 2G
           key: host-openmm-clvk
       - name: lavapipe
-        run: VK_ICD_FILENAMES=$(ls /usr/share/vulkan/icd.d/lvp_icd.*.json | head -1) vulkaninfo --summary
+        run: VK_ICD_FILENAMES=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json | head -1) vulkaninfo --summary
       - name: Build clvk
         run: JOBS=$(nproc) host/build-clvk.sh
       - name: Build OpenMM (OpenCL platform)

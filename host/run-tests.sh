@@ -11,7 +11,7 @@ build=$deps/openmm/build
 export LD_LIBRARY_PATH=$clvk${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 # Use lavapipe unless a Vulkan driver was chosen already.
 if [[ -z ${VK_ICD_FILENAMES:-} ]]; then
-    for f in /usr/share/vulkan/icd.d/lvp_icd.*.json; do [[ -f $f ]] && export VK_ICD_FILENAMES=$f && break; done
+    for f in /usr/share/vulkan/icd.d/lvp_icd*.json; do [[ -f $f ]] && export VK_ICD_FILENAMES=$f && break; done
 fi
 echo "Vulkan ICD: ${VK_ICD_FILENAMES:-system default}"
 
