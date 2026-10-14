@@ -14,7 +14,7 @@ fi
 
 make cpu
 mkdir -p dist
-cp -f probe/cpu/aamd-probe.elf dist/aamd-probe.elf
+cp -f probes/00-vulkan-saxpy/cpu/aamd-probe.elf dist/aamd-probe.elf
 echo "CPU ELF: dist/aamd-probe.elf"
 
 if [[ -n ${PS5_VULKAN:-} ]]; then

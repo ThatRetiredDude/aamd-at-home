@@ -9,14 +9,14 @@ else
  $(error PS5_PAYLOAD_SDK is undefined)
 endif
 
-ROOT := $(abspath ../..)
+ROOT := $(abspath ../../..)
 ELF := aamd-probe.elf
-CFLAGS := -Wall -Werror -O2 -D__PROSPERO__ -I$(ROOT)/probe/include
-SRCS := main.c $(ROOT)/probe/src/aamd_log.c $(ROOT)/probe/src/aamd_saxpy.c
+CFLAGS := -Wall -Werror -O2 -D__PROSPERO__ -I$(ROOT)/probes/00-vulkan-saxpy/include
+SRCS := main.c $(ROOT)/probes/00-vulkan-saxpy/src/aamd_log.c $(ROOT)/probes/00-vulkan-saxpy/src/aamd_saxpy.c
 
 all: $(ELF)
 
-$(ELF): $(SRCS) $(ROOT)/probe/include/aamd_probe.h
+$(ELF): $(SRCS) $(ROOT)/probes/00-vulkan-saxpy/include/aamd_probe.h
 	$(CC) $(CFLAGS) -pthread -o $@ $(SRCS)
 
 clean:

@@ -1,7 +1,7 @@
 build/
 dist/
-probe/cpu/aamd-probe.elf
-probe/gl/gl-probe.elf
+probes/00-vulkan-saxpy/cpu/aamd-probe.elf
+probes/00-vulkan-saxpy/gl/gl-probe.elf
 probe.log
 *.o
 .deps/

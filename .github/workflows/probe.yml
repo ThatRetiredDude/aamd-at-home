@@ -25,7 +25,7 @@ jobs:
           sudo tar xf ps5-payload-dev.tar.gz -C /
           echo "PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk" >> "$GITHUB_ENV"
       - name: Build CPU ELF
-        run: make cpu && mkdir -p dist && cp probe/cpu/aamd-probe.elf dist/aamd-probe.elf
+        run: make cpu && mkdir -p dist && cp probes/00-vulkan-saxpy/cpu/aamd-probe.elf dist/aamd-probe.elf
       - name: File type
         run: file dist/aamd-probe.elf
       - uses: actions/upload-artifact@v4

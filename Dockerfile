@@ -20,8 +20,8 @@ ENV PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk
 WORKDIR /src
 COPY . /src
 RUN make host-test && make cpu \
-    && mkdir -p dist && cp probe/cpu/aamd-probe.elf dist/aamd-probe.elf
+    && mkdir -p dist && cp probes/00-vulkan-saxpy/cpu/aamd-probe.elf dist/aamd-probe.elf
 
 # docker build -t aamd-probe .
 # docker run --rm aamd-probe ls -l dist/aamd-probe.elf
-CMD ["ls", "-l", "dist/aamd-probe.elf", "probe/cpu/aamd-probe.elf"]
+CMD ["ls", "-l", "dist/aamd-probe.elf", "probes/00-vulkan-saxpy/cpu/aamd-probe.elf"]

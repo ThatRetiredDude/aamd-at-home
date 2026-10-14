@@ -3,9 +3,9 @@
 ## Source code in this repository
 
 AAMD@home probe sources in this repository are MIT (see `LICENSE`), except
-`probe/vulkan/probe.c`, which is GPL-3.0-or-later: it is `radv/radv_smoke.c`
-from PS5_Vulkan (Copyright Mihawk-99, GPL-3.0-or-later) cut down to saxpy.
-The saxpy kernel, the CPU check and the other sources are new MIT code.
+`probes/00-vulkan-saxpy/vulkan/probe.c`, which is GPL-3.0-or-later: it is
+`radv/radv_smoke.c` from PS5_Vulkan (Copyright Mihawk-99, GPL-3.0-or-later) cut
+down to saxpy. The saxpy kernel, the CPU check and the other sources are new MIT code.
 
 ## Prebuilt title `artifacts/PPSA99021.zip` (GPL-3.0-or-later)
 
@@ -47,7 +47,7 @@ The complete source for the prebuilt title is:
 The 2026-10-13 build did not record its upstream pins; the commits above
 are the latest on each upstream branch when the zip was built (all three
 last changed on or before 2026-10-10). Build steps are in
-`docs/FEASIBILITY.md` and `probe/vulkan/build.sh`. Future builds write the
+`docs/FEASIBILITY.md` and `probes/00-vulkan-saxpy/vulkan/build.sh`. Future builds write the
 exact pins to `BUILD_SOURCES.txt` inside the title folder.
 
 If any of these upstream repositories is no longer available, ask the

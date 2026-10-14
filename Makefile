@@ -16,23 +16,23 @@ all: host-test
 host-test: build/host/test_saxpy
 	./build/host/test_saxpy
 
-build/host/test_saxpy: probe/host/test_saxpy.c probe/src/aamd_saxpy.c probe/include/aamd_probe.h
+build/host/test_saxpy: probes/00-vulkan-saxpy/host/test_saxpy.c probes/00-vulkan-saxpy/src/aamd_saxpy.c probes/00-vulkan-saxpy/include/aamd_probe.h
 	mkdir -p build/host
-	$(HOST_CC) -std=c11 -O2 -Wall -Wextra -Werror -pthread -Iprobe/include \
-		-o $@ probe/host/test_saxpy.c probe/src/aamd_saxpy.c -lm
+	$(HOST_CC) -std=c11 -O2 -Wall -Wextra -Werror -pthread -Iprobes/00-vulkan-saxpy/include \
+		-o $@ probes/00-vulkan-saxpy/host/test_saxpy.c probes/00-vulkan-saxpy/src/aamd_saxpy.c -lm
 
 cpu:
-	$(MAKE) -C probe/cpu
+	$(MAKE) -C probes/00-vulkan-saxpy/cpu
 
 vulkan:
-	bash probe/vulkan/build.sh
+	bash probes/00-vulkan-saxpy/vulkan/build.sh
 
 gl:
-	$(MAKE) -C probe/gl
+	$(MAKE) -C probes/00-vulkan-saxpy/gl
 
 clean:
-	$(MAKE) -C probe/cpu clean || true
+	$(MAKE) -C probes/00-vulkan-saxpy/cpu clean || true
 	rm -rf build dist
-	rm -f probe/cpu/aamd-probe.elf probe.log
+	rm -f probes/00-vulkan-saxpy/cpu/aamd-probe.elf probe.log
 
 distclean: clean
