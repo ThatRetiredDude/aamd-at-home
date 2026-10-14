@@ -1,0 +1,61 @@
+name: OpenMM on clvk (host)
+
+# Go/no-go for the whole OpenMM-on-PS5 route, with no PS5 and no GPU:
+# build clvk (OpenCL on Vulkan) and OpenMM's OpenCL platform on Linux, then run
+# step 1 (probes/01-opencl-hello) and OpenMM's own tests for every force the MSU
+# simulations use, on lavapipe (Mesa's CPU Vulkan driver). Mirrors clvk's CI.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'host/**'
+      - 'probes/01-opencl-hello/**'
+      - '.github/workflows/host-openmm-clvk.yml'
+  pull_request:
+    paths:
+      - 'host/**'
+      - 'probes/01-opencl-hello/**'
+      - '.github/workflows/host-openmm-clvk.yml'
+
+jobs:
+  openmm-clvk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    env:
+      DEPS: ${{ github.workspace }}/.deps
+      VULKAN_HEADERS_DIR: ${{ github.workspace }}/.deps/Vulkan-Headers
+      CMAKE_EXTRA: -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free space on runner (LLVM is large)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/powershell /usr/local/share/chromium
+          df -h /
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake python3 libvulkan1 libvulkan-dev mesa-vulkan-drivers vulkan-tools
+          ls /usr/share/vulkan/icd.d/
+      - name: Vulkan headers (as clvk's CI, SDK 1.4.350)
+        run: git clone --quiet --depth 1 --branch vulkan-sdk-1.4.350.1 https://github.com/KhronosGroup/Vulkan-Headers.git "$VULKAN_HEADERS_DIR"
+      - name: Setup sccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          variant: sccache
+          max-size: 2G
+          key: host-openmm-clvk
+      - name: lavapipe
+        run: VK_ICD_FILENAMES=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json | head -1) vulkaninfo --summary
+      - name: Build clvk
+        run: JOBS=$(nproc) host/build-clvk.sh
+      - name: Build OpenMM (OpenCL platform)
+        run: JOBS=$(nproc) host/build-openmm.sh
+      - name: Step 1 probe and OpenMM tests on clvk + lavapipe
+        run: host/run-tests.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: openmm-clvk-results
+          path: build/host/ctest.log
+          if-no-files-found: ignore

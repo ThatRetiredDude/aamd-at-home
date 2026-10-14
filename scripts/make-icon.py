@@ -29,7 +29,7 @@ def main() -> None:
     png += chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0))
     png += chunk(b"IDAT", zlib.compress(raw, 9))
     png += chunk(b"IEND", b"")
-    out = Path(__file__).resolve().parents[1] / "probe/title/sce_sys/icon0.png"
+    out = Path(__file__).resolve().parents[1] / "probes/00-vulkan-saxpy/title/sce_sys/icon0.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(png)
     print(f"wrote {out} ({len(png)} bytes)")

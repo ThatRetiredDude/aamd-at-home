@@ -1,5 +1,5 @@
 #version 450
-/* AAMD@home saxpy: y = a*x + y. Same ABI as probe/vulkan/probe.c. */
+/* AAMD@home saxpy: y = a*x + y. Same ABI as probes/00-vulkan-saxpy/vulkan/probe.c. */
 layout(local_size_x = 64) in;
 
 layout(push_constant) uniform Push {

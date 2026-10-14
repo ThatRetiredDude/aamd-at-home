@@ -84,7 +84,7 @@ removed when they moved to RADV).
 
 PS5_Vulkan's own `radv/radv_smoke.c` already ran a compute dispatch on
 the console (64×64 workgroups writing `i*3+7`, read back on the CPU).
-`probe/vulkan/probe.c` is that program cut down to saxpy: same
+`probes/00-vulkan-saxpy/vulkan/probe.c` is that program cut down to saxpy: same
 `vk_icdGetInstanceProcAddr` (no loader), host-visible storage buffers,
 `vkCmdDispatch`, fence wait, CPU compare.
 
@@ -118,7 +118,7 @@ Rejected alternatives:
   9021, for the GPU result.
 - **RADV build cost.** First `tools/build-radv.sh release` is a long
   Mesa compile. CI here only builds the CPU ELF. The Vulkan title is
-  `probe/vulkan/build.sh` once `PS5_VULKAN` points at a built tree.
+  `probes/00-vulkan-saxpy/vulkan/build.sh` once `PS5_VULKAN` points at a built tree.
 - **Host-visible memory.** The probe uses `HOST_VISIBLE | HOST_COHERENT`
   the way `radv_smoke.c` does. If a future RADV build drops host-cached
   types, saxpy readback will need a staging copy.
@@ -134,7 +134,7 @@ Rejected alternatives:
   PPSA99764) set `attribute3` to 524352 (`0x80040`) and declare `amm` /
   `kernel` page-table sizes. A title with `attribute3: 0` and without those
   blocks dies at launch with "Something went wrong" and never reaches
-  `main`. Keep `probe/vulkan/param.json` in that shape. Add `PPSA99021`
+  `main`. Keep `probes/00-vulkan-saxpy/vulkan/param.json` in that shape. Add `PPSA99021`
   to OnionHEN `exact_title_ids` on the console.
 
 ## Artifacts
@@ -185,7 +185,7 @@ export PS5_VULKAN=/path/to/PS5_Vulkan
 make vulkan
 ```
 
-`probe/vulkan/build.sh` passes `--no-dynamic-linker` so Mesa's weak
+`probes/00-vulkan-saxpy/vulkan/build.sh` passes `--no-dynamic-linker` so Mesa's weak
 entry-point names stay out of `.dynsym` (the title converter otherwise
 demands an SDK stub for each).
 

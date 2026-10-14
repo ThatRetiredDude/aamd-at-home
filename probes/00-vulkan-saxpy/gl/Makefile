@@ -16,9 +16,9 @@ endif
 
 include $(PS5_OPENGL_PREFIX)/share/ps5-opengl/ps5-opengl.mk
 
-ROOT := $(abspath ../..)
-CFLAGS += -Wall -Werror -O2 -D__PROSPERO__ -I$(ROOT)/probe/include $(PS5_OPENGL_PUBLIC_CFLAGS)
-SRCS := probe.c $(ROOT)/probe/src/aamd_log.c $(ROOT)/probe/src/aamd_saxpy.c
+ROOT := $(abspath ../../..)
+CFLAGS += -Wall -Werror -O2 -D__PROSPERO__ -I$(ROOT)/probes/00-vulkan-saxpy/include $(PS5_OPENGL_PUBLIC_CFLAGS)
+SRCS := probe.c $(ROOT)/probes/00-vulkan-saxpy/src/aamd_log.c $(ROOT)/probes/00-vulkan-saxpy/src/aamd_saxpy.c
 
 all: gl-probe.elf
 

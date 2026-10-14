@@ -2,43 +2,66 @@
 
 AAMD@home: all-atom molecular dynamics on the PS5 GPU (homebrew).
 
-Step 1 is a GPU compute feasibility probe. Nothing chemistry-related yet.
+**Goal:** run [OpenMM](https://openmm.org), unchanged, on a jailbroken PS5's
+GPU, so the console can run the same simulations as a rented RTX 5090 (first
+target: the monosodium urate / collagen runs of the MSU project).
 
-**GPU compute works on this console as a Mesa/RADV native title.** Porpoise
-(PPSA99764) and RetroArch (PPSA99169) statically link RADV; the OpenGL
-Showcase (PPSA99005) statically links Mesa GL 4.6 with compute shaders.
-See [docs/FEASIBILITY.md](docs/FEASIBILITY.md).
+**Route:** OpenMM's existing OpenCL platform, on
+[clvk](https://github.com/kpet/clvk) (OpenCL implemented on Vulkan), on the
+PS5's Vulkan driver (Mesa RADV, already proven on this console in step 0).
+No OpenMM GPU code is rewritten. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Artifacts
+## Status
 
-| File | How to run |
+| Step | What | Where it runs | Status |
+| --- | --- | --- | --- |
+| 0 | Vulkan compute on the PS5 GPU (saxpy) | PS5 | **PASS** (6.6x vs 16 CPU threads, 0 mismatches) |
+| H | OpenMM's own tests on clvk, software Vulkan | Linux host / CI | in progress |
+| 1 | OpenCL on the PS5 (clvk on RADV), saxpy | PS5 | not started |
+| 2 | OpenMM's tests on the PS5 | PS5 | not started |
+| 3 | An MSU simulation on the PS5, checked against the 5090 | PS5 | not started |
+
+Each step is a go/no-go gate; details and fallbacks in
+[docs/ROADMAP.md](docs/ROADMAP.md).
+
+## Layout
+
+| Path | What |
 | --- | --- |
-| [`artifacts/PPSA99021.zip`](artifacts/PPSA99021.zip) | Unzip and FTP the `PPSA99021/` folder to `/data/homebrew/PPSA99021/`, then launch **AAMD GPU Probe** from the home screen. Do not `nc` this to 9021. |
-| `dist/aamd-probe.elf` | `nc -q0 <ps5> 9021 < dist/aamd-probe.elf` then FTP `/data/aamd/probe.log` (CPU-only; skip unless checking GPU results) |
+| `probes/00-vulkan-saxpy/` | Step 0: Vulkan saxpy title `PPSA99021` (plus CPU ELF and GL fallback) |
+| `probes/01-opencl-hello/` | Step 1: OpenCL device check and saxpy; runs on the host now, PS5 title next |
+| `host/` | Linux host builds of clvk and OpenMM, and the test run (gate H) |
+| `docs/` | Roadmap, architecture, step-0 feasibility evidence |
+| `artifacts/` | Prebuilt signed titles (GPL, see `NOTICE.md`) |
 
-The signed RADV title is in the zip on this branch. `param.json` matches
-working GPU titles (`attribute3` 524352 plus `amm`/`kernel` page tables).
-CI also uploads it as the `PPSA99021` Actions artifact. After launch, FTP
-`/data/aamd/probe.log` or `/data/homebrew/PPSA99021/probe.log`. Rebuild
-with `make vulkan` when `PS5_VULKAN` points at a built
-[PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) tree.
+## Quick start
 
-## Build
-
-Host check (no SDK):
+Step 0 host check (no SDK):
 
 ```sh
 make host-test
 ```
 
-CPU ELF (payload SDK from [ps5-payload-dev](https://github.com/ps5-payload-dev/sdk); host needs clang/llvm 18 so `llvm-config-18` is on `PATH`):
+Gate H on a Linux x86-64 machine (Ubuntu 24.04; needs cmake, ninja, python3,
+`mesa-vulkan-drivers`, `libvulkan-dev`; the clvk build includes LLVM and takes a
+while):
 
 ```sh
-export PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk
-make cpu
-# or: docker build -t aamd-probe .
+host/build-clvk.sh      # clvk with the clspv compiler built in
+host/build-openmm.sh    # OpenMM 8.6.1, OpenCL platform, linked to clvk
+host/run-tests.sh       # step-1 probe + OpenMM tests on lavapipe
 ```
 
-CI uploads the ELF as the `aamd-probe.elf` Actions artifact.
+CI runs the same thing (`.github/workflows/host-openmm-clvk.yml`).
 
-Vulkan title: follow the coordinator section in `docs/FEASIBILITY.md`.
+Step 0 on the console: see [probes/00-vulkan-saxpy/README.md](probes/00-vulkan-saxpy/README.md).
+
+## License
+
+The source code here is MIT (`LICENSE`), except
+`probes/00-vulkan-saxpy/vulkan/probe.c` (GPL-3.0-or-later, derived from PS5_Vulkan). The prebuilt title
+`artifacts/PPSA99021.zip` links GPL-3.0-or-later code (PS5_Vulkan,
+PS5_PayloadSDK), so that binary is distributed under GPL-3.0-or-later
+(`LICENSES/GPL-3.0-or-later.txt`). `NOTICE.md` lists every third-party
+part and the exact source commits it was built from. clvk is Apache-2.0 and
+OpenMM is MIT/LGPL; future titles that link them will list them in `NOTICE.md`.

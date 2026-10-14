@@ -4,10 +4,10 @@
 # tools/build-radv.sh release) and PS5_Mesa at the pin that tree uses.
 #
 # Usage:
-#   PS5_VULKAN=/path/to/PS5_Vulkan ./probe/vulkan/build.sh
+#   PS5_VULKAN=/path/to/PS5_Vulkan ./probes/00-vulkan-saxpy/vulkan/build.sh
 set -euo pipefail
 
-root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 vk=${PS5_VULKAN:?set PS5_VULKAN to a cloned, built mihawk-99/PS5_Vulkan tree}
 mesa=${PS5_MESA_FORK:-$vk/../PS5_Mesa}
 sdk_root="$vk/.deps/native/ps5-payload-sdk"
@@ -18,8 +18,8 @@ fi
 native="$vk/tooling/native"
 tool="$vk/build/host/ps5-native-tool"
 work="$root/build/vulkan"
-param="$root/probe/vulkan/param.json"
-shader="$root/probe/vulkan/shaders/saxpy.comp"
+param="$root/probes/00-vulkan-saxpy/vulkan/param.json"
+shader="$root/probes/00-vulkan-saxpy/vulkan/shaders/saxpy.comp"
 
 for file in "$archive" "$tool" "$param" "$shader" "$sdk_root/bin/prospero-lld" \
             "$vk/tools/radv-link.sh"; do
@@ -40,12 +40,12 @@ glslangValidator -V --target-env vulkan1.0 --vn saxpy_comp_spv "$shader" \
 
 cc -std=c11 -O2 -Wall -Wextra -ffunction-sections -fdata-sections -D__PROSPERO__ \
     -I "$mesa/include" -I "$vk/.deps/native/radv-release/include" \
-    -I "$root/probe/include" -I "$work/gen" \
-    -c "$root/probe/vulkan/probe.c" -o "$work/obj/probe.o"
+    -I "$root/probes/00-vulkan-saxpy/include" -I "$work/gen" \
+    -c "$root/probes/00-vulkan-saxpy/vulkan/probe.c" -o "$work/obj/probe.o"
 cc -std=c11 -O2 -Wall -Wextra -ffunction-sections -fdata-sections -D__PROSPERO__ \
-    -I "$root/probe/include" -c "$root/probe/src/aamd_log.c" -o "$work/obj/aamd_log.o"
+    -I "$root/probes/00-vulkan-saxpy/include" -c "$root/probes/00-vulkan-saxpy/src/aamd_log.c" -o "$work/obj/aamd_log.o"
 cc -std=c11 -O2 -Wall -Wextra -ffunction-sections -fdata-sections -D__PROSPERO__ \
-    -I "$root/probe/include" -c "$root/probe/src/aamd_saxpy.c" -o "$work/obj/aamd_saxpy.o"
+    -I "$root/probes/00-vulkan-saxpy/include" -c "$root/probes/00-vulkan-saxpy/src/aamd_saxpy.c" -o "$work/obj/aamd_saxpy.o"
 cc -std=c++20 -O2 -Wall -Wextra -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections \
     -c "$native/app_crt.cpp" -o "$work/obj/app_crt.o"
 cc -std=c++20 -O2 -Wall -Wextra -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections \
@@ -90,9 +90,19 @@ mkdir -p "$app/sce_sys" "$app/sce_module"
 "$tool" self --sign --in "$work/eboot.elf" --out "$app/eboot.bin" --magic "$fself_magic"
 cp "$param" "$app/sce_sys/param.json"
 for asset in icon0.png pic0.dds pic1.dds snd0.at9; do
-    [[ -f $root/probe/title/sce_sys/$asset ]] && cp "$root/probe/title/sce_sys/$asset" "$app/sce_sys/$asset"
+    [[ -f $root/probes/00-vulkan-saxpy/title/sce_sys/$asset ]] && cp "$root/probes/00-vulkan-saxpy/title/sce_sys/$asset" "$app/sce_sys/$asset"
 done
 [[ -f $vk/runtime/libc.prx ]] || bash "$vk/tools/rebuild-libc.sh"
 cp "$vk/runtime/libc.prx" "$app/sce_module/libc.prx"
+# GPL-3.0: ship the license and record the exact source this title was built from (NOTICE.md).
+cp "$root/LICENSES/GPL-3.0-or-later.txt" "$app/LICENSE-GPL-3.0-or-later.txt"
+cp "$root/NOTICE.md" "$app/NOTICE.md"
+pin() { git -C "$1" rev-parse HEAD 2>/dev/null || echo unknown; }
+{
+    echo "aamd-at-home $(pin "$root")"
+    echo "PS5_Vulkan   $(pin "$vk")"
+    echo "PS5_Mesa     $(pin "$mesa")"
+    echo "PS5_PayloadSDK $(pin "$vk/../PS5_PayloadSDK")"
+} > "$app/BUILD_SOURCES.txt"
 "$tool" self --inspect --file "$app/eboot.bin" >/dev/null
 printf 'AAMD RADV title: %s (%s bytes)\n' "$app" "$(stat -c %s "$app/eboot.bin")"
