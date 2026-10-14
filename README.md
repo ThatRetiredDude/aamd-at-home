@@ -45,7 +45,8 @@ Vulkan title: follow the coordinator section in `docs/FEASIBILITY.md`.
 
 ## License
 
-The source code here is MIT (`LICENSE`). The prebuilt title
+The source code here is MIT (`LICENSE`), except `probe/vulkan/probe.c`
+(GPL-3.0-or-later, derived from PS5_Vulkan). The prebuilt title
 `artifacts/PPSA99021.zip` links GPL-3.0-or-later code (PS5_Vulkan,
 PS5_PayloadSDK), so that binary is distributed under GPL-3.0-or-later
 (`LICENSES/GPL-3.0-or-later.txt`). `NOTICE.md` lists every third-party

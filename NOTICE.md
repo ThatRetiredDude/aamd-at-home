@@ -2,10 +2,10 @@
 
 ## Source code in this repository
 
-AAMD@home probe sources in this repository are MIT (see `LICENSE`).
-`probe/vulkan/probe.c` follows the ICD / compute pattern of
-`PS5_Vulkan/radv/radv_smoke.c` (Copyright Mihawk-99, GPL-3.0-or-later).
-The saxpy kernel and CPU check in this repo are new MIT code.
+AAMD@home probe sources in this repository are MIT (see `LICENSE`), except
+`probe/vulkan/probe.c`, which is GPL-3.0-or-later: it is `radv/radv_smoke.c`
+from PS5_Vulkan (Copyright Mihawk-99, GPL-3.0-or-later) cut down to saxpy.
+The saxpy kernel, the CPU check and the other sources are new MIT code.
 
 ## Prebuilt title `artifacts/PPSA99021.zip` (GPL-3.0-or-later)
 

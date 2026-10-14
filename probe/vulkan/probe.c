@@ -6,9 +6,14 @@
  * radv/radv_smoke.c is the smallest program that already ran a compute
  * dispatch on the console. This file is that smoke test cut down to saxpy:
  * vk_icdGetInstanceProcAddr, host-visible storage buffers, vkCmdDispatch,
- * CPU check, timing. No Vulkan loader. GPL-3.0 applies to a binary linked
- * with PS5_Vulkan / RADV (see NOTICE.md); this source is MIT as part of
- * aamd-at-home.
+ * CPU check, timing. No Vulkan loader.
+ *
+ * Derived from PS5_Vulkan radv/radv_smoke.c, Copyright (C) 2026 Mihawk-99.
+ * Changes Copyright (C) 2026 Jared Maxwell.
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Unlike the rest of aamd-at-home (MIT), this file is GPL-3.0-or-later because
+ * it is derived from GPL code. See NOTICE.md and LICENSES/GPL-3.0-or-later.txt.
  */
 
 #define VK_NO_PROTOTYPES
